@@ -11,7 +11,7 @@ def fetch_js(url):
 
 def extract_endpoints(js_content):
     # regex simples para endpoints
-    pattern = r'["\'](\/[^"\']+)["\']'
+    pattern = r'["\']((?:\/|\.\.\/|\.\.|\w)[^"\']+)["\']'
     matches = re.findall(pattern, js_content)
     return set(matches)
 
