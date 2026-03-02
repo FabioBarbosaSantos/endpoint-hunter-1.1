@@ -21,7 +21,7 @@ def main():
     print(f"[+] Target: {target}")
 
     # 1 - Baixar HTML
-    html = get_html(target, verbose=args.verbose)
+    html = fetch_html(target, verbose=args.verbose)
 
     # 2 - Extrair links do HTML
     html_links = extract_html_links(html, target, verbose=args.verbose)
