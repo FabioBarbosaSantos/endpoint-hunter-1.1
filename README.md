@@ -22,17 +22,28 @@ Specify number of threads:
 python3 main.py -u https://example.com -t 30
 ```
 -t:
-
+```
   5 → shy
+  
   10 → normal
+  
   20 → fast
+  
   50+ → agresiv
+```
 
 Features:
-  
+
+```
   Extracts internal JavaScript files from target HTML
+  
   Parses JavaScript files to discover endpoints
+  
   Normalizes relative paths to absolute URLs
+  
   Filters external domains automatically
+  
   Multithreaded endpoint validation
+  
   Displays HTTP status code next to each valid endpoint
+```
