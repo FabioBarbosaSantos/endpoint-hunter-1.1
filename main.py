@@ -1,8 +1,4 @@
 # main.py
-"""
-Endpoint Hunter 1.2
-JavaScript Endpoint Extractor e HTML link checker assíncrono.
-"""
 
 import argparse
 from hunter.crawler import get_html, extract_scripts, fetch_js_files, extract_html_links
