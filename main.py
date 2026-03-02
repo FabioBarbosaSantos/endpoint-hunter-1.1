@@ -1,55 +1,51 @@
 import argparse
-from urllib.parse import urlparse
-
-from hunter.crawler import fetch_html, extract_internal_js
-from hunter.extractor import fetch_js, extract_endpoints, normalize_endpoints
-from hunter.validator import filter_internal, validate_endpoints
-
-
-def normalize_target(url):
-    if not url.startswith("http"):
-        url = "http://" + url
-    return url
-
+from hunter.crawler import fetch_html, extract_scripts, fetch_js_files, extract_html_links, normalize_target
+from hunter.extractor import extract_endpoints
+from hunter.validator import validate_endpoints
 
 def main():
-    parser = argparse.ArgumentParser(description="Endpoint Hunter")
-    parser.add_argument("-u", "--url", required=True, help="Target URL")
-    parser.add_argument("-t", "--threads", type=int, default=20, help="Number of threads")
-
+    parser = argparse.ArgumentParser(
+        description="Endpoint Hunter 1.1"
+    )
+    parser.add_argument("-u", "--url", required=True, help="Target URL (ex: https://site.com)")
+    parser.add_argument("-t", "--threads", type=int, default=5, help="Number of threads for validation")
+    parser.add_argument("--delay", type=float, default=0.1, help="Delay between requests (s)")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable debug output")
+    
     args = parser.parse_args()
-
+    
     target = normalize_target(args.url)
     print(f"[+] Target: {target}")
 
-    # HTML
-    html = fetch_html(target)
+    # 1 - Baixar HTML
+    html = fetch_html(target, verbose=args.verbose)
+    if not html:
+        print("[!] Could not fetch HTML. Exiting.")
+        return
 
-    # JS internos
-    js_files = extract_internal_js(html, target)
-    print(f"[+] Found {len(js_files)} internal JS files")
+    # 2 - Extrair links internos do HTML
+    html_links = extract_html_links(html, target, verbose=args.verbose)
 
-    all_endpoints = set()
+    # 3 - Extrair scripts JS
+    scripts = extract_scripts(html, target, verbose=args.verbose)
+    print(f"[+] Found {len(scripts)} internal JS files")
 
-    # Extrai endpoints
-    for js in js_files:
-        print(f"[+] Fetching JS: {js}")
-        js_content = fetch_js(js)
-        endpoints = extract_endpoints(js_content)
-        normalized = normalize_endpoints(endpoints, target)
-        all_endpoints.update(normalized)
+    # 4 - Baixar JS
+    js_contents = fetch_js_files(scripts, verbose=args.verbose)
 
-    print(f"[+] Raw endpoints found: {len(all_endpoints)}")
+    # 5 - Extrair endpoints do JS
+    endpoints = extract_endpoints(js_contents, target, verbose=args.verbose)
+    print(f"[+] Raw endpoints found: {len(endpoints)}")
 
-    # Remove externos
-    internal_only = filter_internal(all_endpoints, target)
-    print(f"[+] Internal endpoints: {len(internal_only)}")
+    # 6 - Combinar endpoints HTML e JS
+    all_endpoints = set(endpoints) | set(html_links)
+    print(f"[+] Total unique endpoints: {len(all_endpoints)}\n")
 
-    # Multithread validation
-    print("\n[+] Valid endpoints (excluding 404):\n")
-    valid = validate_endpoints(internal_only, threads=args.threads)
+    # 7 - Validar endpoints
+    results = validate_endpoints(all_endpoints, target, threads=args.threads, delay=args.delay, verbose=args.verbose)
 
-    for url, status in sorted(valid):
+    print("[+] Valid endpoints (excluding 404):\n")
+    for url, status in results:
         print(f"[{status}] {url}")
 
 
