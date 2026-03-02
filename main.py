@@ -1,7 +1,7 @@
 # main.py
 
 import argparse
-from hunter.crawler import get_html, extract_scripts, fetch_js_files, extract_html_links
+from hunter.crawler import fetch_html, extract_scripts, fetch_js_files, extract_html_links
 from hunter.extractor import extract_endpoints
 from hunter.validator import validate_endpoints
 
