@@ -1,4 +1,4 @@
-requests
 beautifulsoup4
-aiohttp
-playwright
+requests
+requests-html
+urllib3
