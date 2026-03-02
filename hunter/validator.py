@@ -1,5 +1,6 @@
 import requests
 from urllib.parse import urlparse
+import time
 
 VALID_STATUS = {200, 201, 204, 301, 302, 401, 403, 405, 500}
 
