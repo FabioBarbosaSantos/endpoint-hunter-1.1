@@ -7,10 +7,12 @@ Clone the repository:
 git clone https://github.com/FabioBarbosaSantos/endpoint-hunter-1.1.git
 cd endpoint-hunter-1.1
 pip install -r requirements.txt
+playwright install
 ```
 or
 ```bash
 pip install --break-system-packages -r requirements.txt
+playwright install
 ```
 
 Run the tool:
