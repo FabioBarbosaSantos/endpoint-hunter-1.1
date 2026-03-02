@@ -1,23 +1,20 @@
 import re
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
-def fetch_js(url):
-    import requests
-    try:
-        r = requests.get(url, timeout=10)
-        return r.text
-    except:
-        return ""
+ENDPOINT_REGEX = re.compile(r"""
+["']                        # abre aspas
+(
+(?:\/|\.\.?\/)?             # / ou ./ ou ../
+[a-zA-Z0-9_\-\/\.]+         # path
+)
+["']
+""", re.VERBOSE)
 
-def extract_endpoints(js_content):
-    # regex simples para endpoints
-    pattern = r'["\']((?:\/|\.\.\/|\.\.|\w)[^"\']+)["\']'
-    matches = re.findall(pattern, js_content)
-    return set(matches)
-
-def normalize_endpoints(endpoints, base_url):
-    normalized = set()
-    for ep in endpoints:
-        full = urljoin(base_url, ep)
-        normalized.add(full)
-    return normalized
+def extract_endpoints(js_contents, base_url, verbose=False):
+    endpoints = set()
+    for content in js_contents:
+        for match in ENDPOINT_REGEX.findall(content):
+            full_url = urljoin(base_url, match)
+            endpoints.add(full_url)
+            if verbose: print(f"[DEBUG] Extracted endpoint: {full_url}")
+    return list(endpoints)
